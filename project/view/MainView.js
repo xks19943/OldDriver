@@ -38,14 +38,14 @@ export default class MainView extends Component{
                                style={{height:56}}
                                leftButton={<IconButton name={'bars'} onPress={this.props.onPress}/>}/>
                   <ScrollableTabView
-                        style={{flex:1}}
                         initialPage={0}
                         tabBarPosition='top'
                         renderTabBar={()=><DefaultTabBar backgroundColor={navTintColor} textStyle={{fontSize:16}}
                                                          underlineStyle={{backgroundColor:titleTintColor}} activeTextColor={titleTintColor}
                                                          inactiveTextColor={titleTintColor}/>}
                         >
-                        <PureView tabLabel="清纯"/>
+                      <PureView tabLabel="清纯"/>
+                      <PureView tabLabel="美女"/>
                   </ScrollableTabView>
             </View>
         );

@@ -5,15 +5,14 @@ import React,{Component} from 'react';
 import {
     View,
     Text,
-    ListView,
-    RefreshControl,
     StyleSheet,
     Dimensions,
     InteractionManager,
     TouchableOpacity,
     Image,
     ActivityIndicator,
-    PixelRatio
+    PixelRatio,
+    ListView
 } from 'react-native';
 
 import {
@@ -25,6 +24,8 @@ import MoreView from '../component/MoreView';
 import Empty from '../component/Empty';
 import Loading from '../component/Loading';
 import PureModel from '../model/PureModel';
+import {PullList} from 'react-native-pull';
+import Utils from '../util/Utils';
 
 let width = Dimensions.get('window').width;
 let height = Dimensions.get('window').height;
@@ -47,6 +48,8 @@ export default class PureView extends Component{
         }
         this.renderItem = this.renderItem.bind(this);
         this.onRefresh = this.onRefresh.bind(this);
+        this.onPullRelease = this.onPullRelease.bind(this);
+        //this.topIndicatorRender = this.topIndicatorRender.bind(this);
         //this.onLoadMore = this.onLoadMore.bind(this);
         //this.onScroll = this.onScroll.bind(this);
         //this.renderMore = this.renderMore.bind(this);
@@ -59,11 +62,18 @@ export default class PureView extends Component{
         })
     }
 
+    onPullRelease(resolve) {
+        this.onRefresh();
+        setTimeout(() => {
+            resolve();
+        }, 1000);
+    }
+
     onRefresh(){
         this.setState({isRefreshing:true});
         let weakThis = this;
         PureModel.firstPage(1).then((data)=>{
-            //console.log('成功之后',data);
+            console.log('成功之后',data);
             weakThis.setState({
                 isLoading:false,
                 empty:false,
@@ -77,15 +87,28 @@ export default class PureView extends Component{
         });
     }
 
+   /* topIndicatorRender(pulling, pullok, pullrelease) {
+        return <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 60}}>
+            <ActivityIndicator size="small" color={accentColor} />
+            {pulling ? <Text>下拉刷新...</Text> : null}
+            {pullok ? <Text>松开刷新......</Text> : null}
+            {pullrelease ? <Text style={{fontSize:16,color:accentColor}}>玩命刷新中......</Text> : null}
+        </View>;
+    }*/
 
 
     renderItem(rowData){
+        let publishedAt = rowData.publishedAt;
+        let time;
+        if(publishedAt!=null){
+            time = Utils.formateTime(publishedAt);
+        }
         return(
             <TouchableOpacity style={{marginBottom:10/PixelRatio.get()}}>
                 <Image source={{uri:rowData.url}} style={styles.image} resizeMode={'stretch'}>
                     <Text style={styles.title} numberOfLines={1}>{'标题'}</Text>
                     <Text style={styles.desc} numberOfLines={1}>{'描述'}</Text>
-                    <Text style={styles.desc} numberOfLines={1}>{'时间'}</Text>
+                    <Text style={styles.desc} numberOfLines={1}>{time}</Text>
                 </Image>
             </TouchableOpacity>
         );
@@ -110,22 +133,20 @@ export default class PureView extends Component{
         }
 
         return(
-            <ListView
-                style={{flex:1}}
-                dataSource={this.state.dataSource}
-                renderRow={this.renderItem}
-                //renderFooter={this.renderMore}
-                //onEndReached={this.onLoadMore}
-                //onScroll={this.onScroll}
-                //onEndReachedThreshold={10}
-                refreshControl={
-                    <RefreshControl
-                        style={{backgroundColor: 'transparent'}}
-                        refreshing={this.state.isRefreshing}
-                        onRefresh={this.onRefresh}
-                        colors={[accentColor, accentColor, accentColor, accentColor]}/>
-                }
-            />
+            <View style={{flex:1}}>
+                <PullList
+                    style={{flex:1}}
+                    dataSource={this.state.dataSource}
+                    renderRow={this.renderItem}
+                    //topIndicatorRender={this.topIndicatorRender}
+                    topIndicatorHeight={60}
+                    onPullRelease={this.onPullRelease}
+                    //renderFooter={this.renderMore}
+                    //onEndReached={this.onLoadMore}
+                    //onScroll={this.onScroll}
+                    //onEndReachedThreshold={10}
+                />
+            </View>
         );
     }
 }

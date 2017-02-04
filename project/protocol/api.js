@@ -14,7 +14,11 @@ import {
 
 var Api = {
 
-    //拼接参数
+    /***
+     * 拆分请求参数
+     * @param obj
+     * @returns {string}
+     */
     toQueryString: function(obj){
         return obj ? Object.keys(obj).sort().map(function (key) {
             var val = obj[key];
@@ -27,7 +31,13 @@ var Api = {
         }).join('&') : '';
     },
 
-
+    /**
+     * get请求
+     * @param url
+     * @param method
+     * @param params
+     * @returns {Promise<T>|Promise}
+     */
     getRequest:function(url,method,params) {
         var isOk;
         console.log("请求:",url + this.toQueryString(params));
@@ -61,7 +71,13 @@ var Api = {
         })
     },
 
-
+    /***
+     * post请求
+     * @param url
+     * @param method
+     * @param body
+     * @returns {Promise<T>|Promise}
+     */
     postRequest:function(url,method,body) {
         var isOk;
         console.log("请求:",url + this.toQueryString(body));
@@ -101,7 +117,11 @@ var Api = {
     },
 
 
-    //上传图片
+    /**
+     * 上传图片
+     * @param imageUrl
+     * @returns {Promise<T>|Promise}
+     */
     uploadImage: function (imageUrl) {
         return new Promise((reslove, reject)=> {
             let uri = imageUrl;

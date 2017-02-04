@@ -6,6 +6,7 @@ import {
     Platform,
     NativeModules,
 } from 'react-native';
+import moment from 'moment';
 var DialogLoadModule = NativeModules.DialogLoadModule;
 var Utils={
     //显示加载进度条
@@ -63,5 +64,14 @@ var Utils={
         }
         return ret;
     },
+
+    /**
+     * 格式化日期
+     * @param date
+     * @returns {string}
+     */
+    formateTime:function(time){
+        return moment(time).format('YYYY-MM-DD hh:mm');
+    }
 };
 module.exports = Utils;
