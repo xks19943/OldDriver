@@ -23,7 +23,6 @@ import {
 import PureView from '../view/PureView';
 
 export default class MainView extends Component{
-
     render(){
         var titleConfig = {
             title: '老司机',
@@ -44,8 +43,8 @@ export default class MainView extends Component{
                                                          underlineStyle={{backgroundColor:titleTintColor}} activeTextColor={titleTintColor}
                                                          inactiveTextColor={titleTintColor}/>}
                         >
-                      <PureView tabLabel="清纯"/>
-                      <PureView tabLabel="美女"/>
+                      <PureView tabLabel="清纯" navigator={this.props.navigator}/>
+                      <PureView tabLabel="美女" navigator={this.props.navigator}/>
                   </ScrollableTabView>
             </View>
         );

@@ -26,6 +26,7 @@ import Loading from '../component/Loading';
 import PureModel from '../model/PureModel';
 import {PullList} from 'react-native-pull';
 import Utils from '../util/Utils';
+import PhotoView from './PhotoView';
 
 let width = Dimensions.get('window').width;
 let height = Dimensions.get('window').height;
@@ -53,6 +54,21 @@ export default class PureView extends Component{
         //this.onLoadMore = this.onLoadMore.bind(this);
         //this.onScroll = this.onScroll.bind(this);
         //this.renderMore = this.renderMore.bind(this);
+    }
+
+    zoomPicture = (url) =>{
+        var images = [];
+        var image = {url:''};
+        image.url = url;
+        images.push(image);
+        InteractionManager.runAfterInteractions(()=>{
+            this.props.navigator && this.props.navigator.push({
+                component:PhotoView,
+                params:{
+                    images:images
+                }
+            })
+        })
     }
 
     componentDidMount() {
@@ -104,7 +120,7 @@ export default class PureView extends Component{
             time = Utils.formateTime(publishedAt);
         }
         return(
-            <TouchableOpacity style={{marginBottom:10/PixelRatio.get()}}>
+            <TouchableOpacity style={{marginBottom:10/PixelRatio.get()}} onPress={()=>this.zoomPicture(rowData.url)}>
                 <Image source={{uri:rowData.url}} style={styles.image} resizeMode={'stretch'}>
                     <Text style={styles.title} numberOfLines={1}>{'标题'}</Text>
                     <Text style={styles.desc} numberOfLines={1}>{'描述'}</Text>

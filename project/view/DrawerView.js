@@ -36,7 +36,7 @@ export default class DrawerView extends Component{
                 type="overlay"
                 openDrawerOffset={0.3}
                 content={<MenuView/>}>
-                <MainView onPress={this.openMenu}/>
+                <MainView onPress={this.openMenu} navigator={this.props.navigator}/>
             </Drawer>
         )
     }
