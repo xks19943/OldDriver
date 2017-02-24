@@ -21,7 +21,7 @@ import {
     accentColor
 } from '../constants/global-constants';
 import PureView from '../view/PureView';
-
+import WelfareView from '../view/WelfareView';
 export default class MainView extends Component{
     render(){
         var titleConfig = {
@@ -43,8 +43,8 @@ export default class MainView extends Component{
                                                          underlineStyle={{backgroundColor:titleTintColor}} activeTextColor={titleTintColor}
                                                          inactiveTextColor={titleTintColor}/>}
                         >
+                      <WelfareView tabLabel="美女" navigator={this.props.navigator}/>
                       <PureView tabLabel="清纯" navigator={this.props.navigator}/>
-                      <PureView tabLabel="美女" navigator={this.props.navigator}/>
                   </ScrollableTabView>
             </View>
         );

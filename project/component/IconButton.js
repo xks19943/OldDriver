@@ -14,8 +14,8 @@ export default class IconButton extends Component{
         let name;
         this.props.name == null ? name ='angle-left':name = this.props.name;
         return(
-            <TouchableOpacity onPress={this.props.onPress} style={{marginHorizontal:16, alignSelf:'center'}}>
-                <Icon name={name} color="#ffffff" size={32} style={{margin:8}}/>
+            <TouchableOpacity onPress={this.props.onPress} style={{marginHorizontal:16,justifyContent:'center'}}>
+                <Icon name={name} style={[{fontSize:32,color:'#ffffff'},this.props.style]}/>
             </TouchableOpacity>
         );
     }

@@ -10,12 +10,13 @@ import {
     NativeModules
 } from 'react-native';
 
-import Home from './view/Home';
 let tempNavigator;
 var SplashScreen = NativeModules.SplashScreen;
 import firebase from 'firebase';
-import Login from './user/LoginView';
-import MainView from './view/DrawerView';
+import LoginView from './user/LoginView';
+import DrawerView from './view/DrawerView';
+import UserModel from './model/UserModel';
+import SplashView from './view/SplashView';
 var config = {
     apiKey: "AIzaSyBdFLss5KH5bZ5MvhFrW7NZtTD2WwoXLY8",
     authDomain: "olddriver-462f6.firebaseapp.com",
@@ -37,10 +38,39 @@ export default class App extends Component{
             }
             return false;
         })
+        this.asyncLoadUser = this.asyncLoadUser.bind(this);
+    }
+
+    asyncLoadUser(){
+        let weakThis = this;
+        UserModel.getUid().then((uid)=>{
+            console.log('uid',uid);
+            if(uid!=null){
+                weakThis.loginSuccess();
+            }else{
+                weakThis.toLogin();
+            }
+            SplashScreen.hide();
+        }).catch((e)=>{
+            SplashScreen.hide();
+        })
+
+    }
+
+    loginSuccess(){
+        tempNavigator && tempNavigator.replace({
+            component:DrawerView
+        })
+    }
+
+    toLogin(){
+        tempNavigator && tempNavigator.replace({
+            component:LoginView
+        })
     }
 
     componentDidMount(){
-        SplashScreen.hide();
+        this.asyncLoadUser();
     }
 
     routeManager(route,navigator){
@@ -59,8 +89,7 @@ export default class App extends Component{
                 style={{flex:1, flexDirection:'column'}}
                 //配置默认路由
                 initialRoute={{
-                    name:'Main',
-                    component:MainView,
+                    component:SplashView,
                 }}
                 //配置动画和手势
                 configureScene={()=>Navigator.SceneConfigs.FloatFromBottom}

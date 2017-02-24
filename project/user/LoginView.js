@@ -29,7 +29,8 @@ import {
 import IconButton from '../component/IconButton';
 import firebase from 'firebase';
 import Utils from '../util/Utils';
-import Home from '../view/Home';
+import DrawerView from '../view/DrawerView';
+import Storage from '../util/Storage';
 
 export default class Login extends Component{
     constructor(props){
@@ -50,9 +51,10 @@ export default class Login extends Component{
                 console.log('登陆成功');
                 console.log('用户的email',user.email);
                 console.log('用户的uid',user.uid);
+                Storage.saveString('uid',user.uid);
                 InteractionManager.runAfterInteractions(()=>{
                     weakThis.props.navigator && weakThis.props.navigator.resetTo({
-                        component:Home,
+                        component:DrawerView,
                     })
                 });
             }else{

@@ -15,7 +15,7 @@ import StatusBars from '../component/StatusBars';
 import NavigationBar from 'react-native-navbar';
 import Line from '../component/Line';
 import Button from 'apsl-react-native-button';
-import Home from '../view/Home';
+import Home from '../view/WelfareView';
 import IconButton from '../component/IconButton';
 import Utils from '../util/Utils';
 import firebase from 'firebase';

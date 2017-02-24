@@ -27,22 +27,22 @@ import PureModel from '../model/PureModel';
 import {PullList} from 'react-native-pull';
 import Utils from '../util/Utils';
 import PhotoView from './PhotoView';
-
+let page;
+let size;
+let canLoadMore;
 let width = Dimensions.get('window').width;
 let height = Dimensions.get('window').height;
-let canLoadMore;
-let size;
+
 export default class PureView extends Component{
+
     constructor(props){
         super(props);
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        canLoadMore = false;
+        page = 1;
         size = 0;
         this.state = {
-            page:1,
             dataList:[],
             isLoadMore:false,
-            isRefreshing:false,
             isLoading:true,
             empty:true,
             dataSource:ds,
@@ -51,9 +51,8 @@ export default class PureView extends Component{
         this.onRefresh = this.onRefresh.bind(this);
         this.onPullRelease = this.onPullRelease.bind(this);
         //this.topIndicatorRender = this.topIndicatorRender.bind(this);
-        //this.onLoadMore = this.onLoadMore.bind(this);
-        //this.onScroll = this.onScroll.bind(this);
-        //this.renderMore = this.renderMore.bind(this);
+        this.onLoadMore = this.onLoadMore.bind(this);
+        this.renderMore = this.renderMore.bind(this);
     }
 
     zoomPicture = (url) =>{
@@ -86,15 +85,13 @@ export default class PureView extends Component{
     }
 
     onRefresh(){
-        this.setState({isRefreshing:true});
         let weakThis = this;
         PureModel.firstPage(1).then((data)=>{
-            console.log('成功之后',data);
+            size = data.length;
+            page = page + 1;
             weakThis.setState({
                 isLoading:false,
                 empty:false,
-                isRefreshing:false,
-                page:1,
                 dataList:data,
                 dataSource:weakThis.state.dataSource.cloneWithRows(data)
             })
@@ -102,6 +99,34 @@ export default class PureView extends Component{
 
         });
     }
+
+
+    onLoadMore() {
+        if (this.state.isLoadMore && size !=10) {
+            return
+        }
+        this.setState({isLoadMore: true});
+        let weakThis = this;
+        PureModel.nextPage(page + 1).then((data)=>{
+            if (data != null && data.length > 0) {
+                let newList = this.state.dataList.concat(data);
+                size = data.length;
+                page = page + 1;
+                weakThis.setState({
+                    isLoadMore: false,
+                    dataList: newList,
+                    dataSource: weakThis.state.dataSource.cloneWithRows(newList)
+                })
+            } else {
+                weakThis.setState({
+                    isLoadMore:false
+                })
+            }
+        }).catch((e)=> {
+
+        })
+    }
+
 
    /* topIndicatorRender(pulling, pullok, pullrelease) {
         return <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 60}}>
@@ -111,6 +136,8 @@ export default class PureView extends Component{
             {pullrelease ? <Text style={{fontSize:16,color:accentColor}}>玩命刷新中......</Text> : null}
         </View>;
     }*/
+
+
 
 
     renderItem(rowData){
@@ -130,6 +157,12 @@ export default class PureView extends Component{
         );
     }
 
+    renderMore(){
+        if(this.state.isLoadMore){
+            return <MoreView/>
+        }
+        return null;
+    }
 
     render(){
         if(this.state.isLoading){
@@ -157,10 +190,9 @@ export default class PureView extends Component{
                     //topIndicatorRender={this.topIndicatorRender}
                     topIndicatorHeight={60}
                     onPullRelease={this.onPullRelease}
-                    //renderFooter={this.renderMore}
-                    //onEndReached={this.onLoadMore}
-                    //onScroll={this.onScroll}
-                    //onEndReachedThreshold={10}
+                     renderFooter={this.renderMore}
+                     onEndReached={this.onLoadMore}
+                     onEndReachedThreshold={10}
                 />
             </View>
         );

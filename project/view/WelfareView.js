@@ -6,7 +6,6 @@ import {
     View,
     Text,
     ListView,
-    RefreshControl,
     StyleSheet,
     Dimensions,
     InteractionManager,
@@ -22,30 +21,25 @@ import {
     accentColor
 } from '../constants/global-constants';
 
-import StatusBars from '../component/StatusBars';
 import Empty from '../component/Empty';
 import Loading from '../component/Loading';
 import EnomarModel from '../model/EnomarModel';
 import DetailView from './DetailView';
-
-import NavigationBar from 'react-native-navbar';
 import MoreView from '../component/MoreView';
+import {PullList} from 'react-native-pull';
 
 let width = Dimensions.get('window').width;
 let height = Dimensions.get('window').height;
-let canLoadMore;
 let size;
-export default class Home extends Component{
+export default class WelfareView extends Component{
     constructor(props){
         super(props);
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        canLoadMore = false;
         size = 0;
         this.state = {
             page:1,
             dataList:[],
             isLoadMore:false,
-            isRefreshing:false,
             isLoading:true,
             empty:true,
             dataSource:ds,
@@ -53,8 +47,8 @@ export default class Home extends Component{
         this.renderItem = this.renderItem.bind(this);
         this.onRefresh = this.onRefresh.bind(this);
         this.onLoadMore = this.onLoadMore.bind(this);
-        this.onScroll = this.onScroll.bind(this);
         this.renderMore = this.renderMore.bind(this);
+        this.onPullRelease = this.onPullRelease.bind(this);
     }
 
     componentDidMount() {
@@ -76,17 +70,16 @@ export default class Home extends Component{
         })
     }
 
-    onScroll(){
-        if(!canLoadMore && size == 10){
-            canLoadMore = true;
-        }
+    onPullRelease(resolve) {
+        this.onRefresh();
+        setTimeout(() => {
+            resolve();
+        }, 1000);
     }
 
+
+
     onRefresh(){
-        if(this.state.isRefreshing){
-            return;
-        }
-        this.setState({isRefreshing:true});
         let weakThis = this;
         EnomarModel.firstPage(1).then((data)=>{
             console.log('美女图片',data);
@@ -95,7 +88,6 @@ export default class Home extends Component{
                 weakThis.setState({
                     isLoading:false,
                     empty:false,
-                    isRefreshing:false,
                     page:1,
                     dataList:data,
                     dataSource:weakThis.state.dataSource.cloneWithRows(data)
@@ -104,7 +96,6 @@ export default class Home extends Component{
                 weakThis.setState({
                     isLoading:false,
                     empty:true,
-                    isRefreshing:false
                 })
             }
         }).catch((e)=>{
@@ -113,14 +104,13 @@ export default class Home extends Component{
     }
 
     onLoadMore() {
-        if (this.state.isRefreshing || this.state.isLoadMore || !canLoadMore) {
+        if (this.state.isLoadMore && size!=10) {
             return
         }
         this.setState({isLoadMore: true});
         let page = this.state.page;
         let weakThis = this;
         EnomarModel.nextPage(page + 1).then((data)=>{
-            canLoadMore = false;
             if (data != null && data.length > 0) {
                 let newList = this.state.dataList.concat(data);
                 size = data.length;
@@ -161,15 +151,9 @@ export default class Home extends Component{
     }
 
     render(){
-        var titleConfig = {
-            title: '老司机',
-            tintColor:titleTintColor,
-            style:{fontSize:20}
-        };
         if(this.state.isLoading){
             return(
                 <View style={{flex:1, backgroundColor:'#efeff4'}}>
-                    <StatusBars/>
                     <Loading/>
                 </View>
             );
@@ -178,33 +162,24 @@ export default class Home extends Component{
         if(this.state.empty){
             return(
                 <View style={{flex:1, backgroundColor:'#efeff4'}}>
-                    <StatusBars/>
                     <Empty/>
                 </View>
             );
         }
 
         return(
-            <View style={{flex:1, backgroundColor:'#efeff4'}}>
-                <StatusBars/>
-                <NavigationBar tintColor={navTintColor}
-                               title={titleConfig}
-                               style={{height:56}}/>
-                <ListView
-                    style={[{flex:1}]}
+            <View style={{flex:1}}>
+                <PullList
+                    style={{flex:1}}
                     dataSource={this.state.dataSource}
                     renderRow={this.renderItem}
+                    //topIndicatorRender={this.topIndicatorRender}
+                    topIndicatorHeight={60}
+                    onPullRelease={this.onPullRelease}
                     renderFooter={this.renderMore}
                     onEndReached={this.onLoadMore}
-                    onScroll={this.onScroll}
+                    scrollEnabled={true}
                     onEndReachedThreshold={10}
-                    refreshControl={
-                        <RefreshControl
-                            style={{backgroundColor: 'transparent'}}
-                            refreshing={this.state.isRefreshing}
-                            onRefresh={this.onRefresh}
-                            colors={[accentColor, accentColor, accentColor, accentColor]}/>
-                    }
                 />
             </View>
         );
