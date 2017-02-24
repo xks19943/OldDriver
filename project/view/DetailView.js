@@ -27,14 +27,13 @@ export default class DetailView extends Component{
     constructor(props){
         super(props);
         this.state={
-            url:''
+            url:'',
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.setState({url:this.props.url});
     }
-
 
 
     render(){
@@ -43,7 +42,6 @@ export default class DetailView extends Component{
             tintColor:titleTintColor,
             style:{fontSize:20}
         };
-
         return(
             <View style={{flex:1, backgroundColor:'#efeff4'}}>
                 <StatusBars/>
@@ -57,9 +55,17 @@ export default class DetailView extends Component{
                     startInLoadingState={true}
                     source={{uri:this.state.url}}
                     javaScriptEnabled={true}
-                    //scalesPageToFit={true}
-                    //automaticallyAdjustContentInsets={false}
-                    //contentInset={{top:0,left:0, bottom:10,right:10}}
+                    injectedJavaScript={
+                        '<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">'
+                    }
+                   /*onNavigationStateChange={(title)=>{
+                        if(title.title != undefined) {
+                            console.log('高度为',title);
+                            this.setState({
+                                height:(parseInt(title.title))
+                            })
+                        }
+                    }}*/
                 />
             </View>
         );

@@ -17,6 +17,8 @@ import LoginView from './user/LoginView';
 import DrawerView from './view/DrawerView';
 import UserModel from './model/UserModel';
 import SplashView from './view/SplashView';
+import './global/Global';
+
 var config = {
     apiKey: "AIzaSyBdFLss5KH5bZ5MvhFrW7NZtTD2WwoXLY8",
     authDomain: "olddriver-462f6.firebaseapp.com",

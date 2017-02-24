@@ -30,13 +30,14 @@ export default class MainView extends Component{
             style:{fontSize:20}
         };
         return(
-            <View style={{flex:1, backgroundColor:'#efeff4'}}>
+            <View style={{width:screenWidth, height:screenHeight,backgroundColor:'#efeff4'}}>
                 <StatusBars/>
                 <NavigationBar tintColor={navTintColor}
                                title={titleConfig}
                                style={{height:56}}
                                leftButton={<IconButton name={'bars'} onPress={this.props.onPress}/>}/>
-                  <ScrollableTabView
+                 <ScrollableTabView
+                        style={{flex:1}}
                         initialPage={0}
                         tabBarPosition='top'
                         renderTabBar={()=><DefaultTabBar backgroundColor={navTintColor} textStyle={{fontSize:16}}

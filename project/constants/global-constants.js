@@ -8,7 +8,7 @@ import React, {
 
 
 module.exports = {
-  bgColor:'#efeff4',
+  gbgColor:'#efeff4',
   statusBarColor:'#00796B',
   navTintColor:'#009688',
   titleTintColor:'#FFFFFF',

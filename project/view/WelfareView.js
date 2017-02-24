@@ -12,7 +12,8 @@ import {
     TouchableOpacity,
     Image,
     ActivityIndicator,
-    PixelRatio
+    PixelRatio,
+    RefreshControl,
 } from 'react-native';
 
 import {
@@ -26,19 +27,20 @@ import Loading from '../component/Loading';
 import EnomarModel from '../model/EnomarModel';
 import DetailView from './DetailView';
 import MoreView from '../component/MoreView';
-import {PullList} from 'react-native-pull';
 
 let width = Dimensions.get('window').width;
 let height = Dimensions.get('window').height;
-let size;
+
 export default class WelfareView extends Component{
+    size = 0;
+    page = 1;
+
     constructor(props){
         super(props);
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        size = 0;
         this.state = {
-            page:1,
             dataList:[],
+            isRefreshing:false,
             isLoadMore:false,
             isLoading:true,
             empty:true,
@@ -48,20 +50,17 @@ export default class WelfareView extends Component{
         this.onRefresh = this.onRefresh.bind(this);
         this.onLoadMore = this.onLoadMore.bind(this);
         this.renderMore = this.renderMore.bind(this);
-        this.onPullRelease = this.onPullRelease.bind(this);
     }
 
     componentDidMount() {
-        let weakThis = this;
-        InteractionManager.runAfterInteractions(function () {
-            weakThis.onRefresh();
+        InteractionManager.runAfterInteractions(()=>{
+            this.onRefresh();
         });
     }
 
     toDetail(url){
-        let weakThis = this;
-        InteractionManager.runAfterInteractions(function () {
-            weakThis.props.navigator && weakThis.props.navigator.push({
+        InteractionManager.runAfterInteractions(()=>{
+            this.props.navigator && this.props.navigator.push({
                 component:DetailView,
                 params:{
                     url:url,
@@ -70,58 +69,54 @@ export default class WelfareView extends Component{
         })
     }
 
-    onPullRelease(resolve) {
-        this.onRefresh();
-        setTimeout(() => {
-            resolve();
-        }, 1000);
-    }
 
 
 
     onRefresh(){
-        let weakThis = this;
+        this.setState({isRefreshing:true});
         EnomarModel.firstPage(1).then((data)=>{
             console.log('美女图片',data);
             if(data !=null && data.length > 0){
-                size = data.length;
-                weakThis.setState({
+                this.size = data.length;
+                this.page = 1;
+                this.setState({
                     isLoading:false,
                     empty:false,
-                    page:1,
                     dataList:data,
-                    dataSource:weakThis.state.dataSource.cloneWithRows(data)
+                    isRefreshing:false,
+                    dataSource:this.state.dataSource.cloneWithRows(data)
                 })
             }else{
-                weakThis.setState({
+                this.setState({
                     isLoading:false,
                     empty:true,
+                    isRefreshing:false,
                 })
             }
         }).catch((e)=>{
-
+            this.setState({
+                isRefreshing:false,
+            })
         });
     }
 
     onLoadMore() {
-        if (this.state.isLoadMore && size!=10) {
+        if (this.state.isLoadMore && this.size!=10) {
             return
         }
         this.setState({isLoadMore: true});
-        let page = this.state.page;
-        let weakThis = this;
-        EnomarModel.nextPage(page + 1).then((data)=>{
+        EnomarModel.nextPage(this.page + 1).then((data)=>{
             if (data != null && data.length > 0) {
                 let newList = this.state.dataList.concat(data);
-                size = data.length;
-                weakThis.setState({
+                this.size = data.length;
+                this.page ++;
+                this.setState({
                     isLoadMore: false,
-                    page: page + 1,
                     dataList: newList,
-                    dataSource: weakThis.state.dataSource.cloneWithRows(newList)
+                    dataSource: this.state.dataSource.cloneWithRows(newList)
                 })
             } else {
-                weakThis.setState({
+                this.setState({
                     isLoadMore:false
                 })
             }
@@ -169,17 +164,21 @@ export default class WelfareView extends Component{
 
         return(
             <View style={{flex:1}}>
-                <PullList
+                <ListView
                     style={{flex:1}}
                     dataSource={this.state.dataSource}
                     renderRow={this.renderItem}
-                    //topIndicatorRender={this.topIndicatorRender}
-                    topIndicatorHeight={60}
-                    onPullRelease={this.onPullRelease}
                     renderFooter={this.renderMore}
                     onEndReached={this.onLoadMore}
-                    scrollEnabled={true}
                     onEndReachedThreshold={10}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.isRefreshing}
+                            onRefresh={this.onRefresh}
+                            colors={[navTintColor]}
+                            progressBackgroundColor="#ffffff"
+                        />
+                    }
                 />
             </View>
         );
